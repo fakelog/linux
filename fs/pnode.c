@@ -705,22 +705,26 @@ static struct mount *next_descendent(struct mount *root, struct mount *cur)
 
 void propagate_remount(struct mount *mnt)
 {
-	struct mount *m = mnt;
+	struct mount *parent = mnt->mnt_parent;
+	struct mount *p = mnt, *m;
 #ifdef CONFIG_RKP_NS_PROT
 	struct super_block *sb = mnt->mnt->mnt_sb;
 #else
 	struct super_block *sb = mnt->mnt.mnt_sb;
 #endif
 
-	if (sb->s_op->copy_mnt_data) {
-		m = next_descendent(mnt, m);
-		while (m) {
+	if (!sb->s_op->copy_mnt_data)
+		return;
+	for (p = propagation_next(parent, parent); p;
+				p = propagation_next(p, parent)) {
 #ifdef CONFIG_RKP_NS_PROT
+		m = __lookup_mnt(p->mnt, mnt->mnt_mountpoint);
+		if (m)
 			sb->s_op->copy_mnt_data(m->mnt->data, mnt->mnt->data);
 #else
+		m = __lookup_mnt(&p->mnt, mnt->mnt_mountpoint);
+		if (m)
 			sb->s_op->copy_mnt_data(m->mnt.data, mnt->mnt.data);
 #endif
-			m = next_descendent(mnt, m);
-		}
 	}
 }

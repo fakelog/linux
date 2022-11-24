@@ -30,10 +30,7 @@
 			IS_ENABLED(CONFIG_UBIFS_FS_ENCRYPTION))
 #endif
 
-#define FS_CRYPTO_BLOCK_SIZE		16
-
 struct fscrypt_ctx;
-
 struct fscrypt_info;
 
 struct fscrypt_str {

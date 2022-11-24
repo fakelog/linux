@@ -378,7 +378,7 @@ put_node:
 } late_initcall(init_frt);
 #else
 static inline void update_activated_cpus(void) { };
-#endif
+#endif /* CONFIG_SCHED_USE_FLUID_RT */
 
 int sched_rr_timeslice = RR_TIMESLICE;
 int sysctl_sched_rr_timeslice = (MSEC_PER_SEC / HZ) * RR_TIMESLICE;
@@ -2371,6 +2371,8 @@ static void put_prev_task_rt(struct rq *rq, struct task_struct *p)
 
 	update_curr_rt(rq);
 
+	update_rt_rq_load_avg(rq_clock_task(rq), cpu_of(rq), &rq->rt, 1);
+
 	/*
 	 * The previous task needs to be made eligible for pushing
 	 * if it is still active
@@ -3579,6 +3581,7 @@ static void task_tick_rt(struct rq *rq, struct task_struct *p, int queued)
 	int cpu = cpu_of(rq);
 
 	update_curr_rt(rq);
+	update_rt_rq_load_avg(rq_clock_task(rq), cpu_of(rq), &rq->rt, 1);
 
 	for_each_sched_rt_entity(rt_se)
 		update_rt_load_avg(now, rt_se);

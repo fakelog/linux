@@ -322,7 +322,7 @@ void __show_regs(struct pt_regs *regs)
 		pr_cont("\n");
 	}
 	if (!user_mode(regs))
-		show_extra_register_data(regs, 256);
+		show_extra_register_data(regs, 128);
 	printk("\n");
 }
 

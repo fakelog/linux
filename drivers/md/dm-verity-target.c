@@ -448,8 +448,8 @@ static int verity_verify_io(struct dm_verity_io *io)
 
 	for (b = 0; b < io->n_blocks; b++) {
 		int r;
-		struct shash_desc *desc = verity_io_hash_desc(v, io);
 		sector_t cur_block = io->block + b;
+		struct ahash_request *req = verity_io_hash_req(v, io);
 
 		if (v->validated_blocks &&
 		    likely(test_bit(cur_block, v->validated_blocks))) {
@@ -512,7 +512,7 @@ static int verity_verify_io(struct dm_verity_io *io)
 		        add_corrupted_blks();
 #else
 		else if (verity_handle_err(v, DM_VERITY_BLOCK_TYPE_DATA,
-					   cur_block)){
+					   cur_block)) {
 #endif
 			return -EIO;
 		}
@@ -1057,7 +1057,16 @@ int verity_ctr(struct dm_target *ti, unsigned argc, char **argv)
 		v->tfm = NULL;
 		goto bad;
 	}
-	v->digest_size = crypto_shash_digestsize(v->tfm);
+
+	/*
+	 * dm-verity performance can vary greatly depending on which hash
+	 * algorithm implementation is used.  Help people debug performance
+	 * problems by logging the ->cra_driver_name.
+	 */
+	DMINFO("%s using implementation \"%s\"", v->alg_name,
+	       crypto_hash_alg_common(v->tfm)->base.cra_driver_name);
+
+	v->digest_size = crypto_ahash_digestsize(v->tfm);
 	if ((1 << v->hash_dev_block_bits) < v->digest_size * 2) {
 		ti->error = "Digest size too big";
 		r = -EINVAL;

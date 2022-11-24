@@ -587,7 +587,7 @@ prefer_idle_write(struct cgroup_subsys_state *css, struct cftype *cft,
 	    u64 prefer_idle)
 {
 	struct schedtune *st = css_st(css);
-	st->prefer_idle = prefer_idle;
+	st->prefer_idle = !!prefer_idle;
 
 	return 0;
 }
@@ -787,7 +787,6 @@ schedtune_init(void)
 {
 	schedtune_spc_rdiv = reciprocal_value(100);
 	schedtune_init_cgroups();
-
 	return 0;
 }
 postcore_initcall(schedtune_init);

@@ -557,8 +557,7 @@ struct limit_search {
 extern void setup_derived_state(struct inode *inode, perm_t perm,
 			userid_t userid, uid_t uid);
 extern void get_derived_permission(struct dentry *parent, struct dentry *dentry);
-extern void get_derived_permission_new(struct dentry *parent,
-		struct dentry *dentry, const struct qstr *name);
+extern void get_derived_permission_new(struct dentry *parent, struct dentry *dentry, const struct qstr *name);
 extern void get_derived_permission_inode_new(struct dentry *parent,
 		struct inode *inode, const struct qstr *name);
 extern void fixup_perms_recursive(struct dentry *dentry, struct limit_search *limit);
